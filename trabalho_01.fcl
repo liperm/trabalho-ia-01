@@ -1,0 +1,42 @@
+FUNCTION_BLOCK determina_preco
+
+	VAR_INPUT
+		distancia_mar : REAL;
+		area_total : REAL;
+	END_VAR
+
+	VAR_OUTPUT
+		preco : REAL;
+	END_VAR
+
+	FUZZIFY distancia_mar
+		TERM litoral := (0, 1) (50, 0);
+		TERM interior := (0, 0) (50, 1) (500, 1);
+	END_FUZZIFY
+
+	FUZZIFY area_total
+		TERM pequeno := (0, 0) (100, 1) (200, 0);
+		TERM medio := (100, 0) (200, 1) (300, 0);
+		TERM grande := (200, 0) (300, 1) (400, 1);
+	END_FUZZIFY
+
+	DEFUZZIFY preco
+		TERM barato := (0, 1) (100, 1) (300, 0);
+		TERM mediano := (100, 0) (300, 1) (500, 0);
+		TERM caro := (300, 0) (500, 1) (1000, 1);
+		METHOD : COG;
+		DEFAULT := 0; 
+	END_DEFUZZIFY 
+
+	RULEBLOCK first
+		AND : MIN;
+
+		RULE 1 : IF distancia_mar IS litoral AND area_total IS pequeno THEN preco IS mediano;
+		RULE 2 : IF distancia_mar IS litoral AND area_total IS medio THEN preco IS mediano;
+		RULE 3 : IF distancia_mar IS litoral AND area_total IS grande THEN preco IS caro;
+		RULE 4 : IF distancia_mar IS interior AND area_total IS pequeno THEN preco IS barato;
+		RULE 5 : IF distancia_mar IS interior AND area_total IS medio THEN preco IS barato;
+		RULE 6 : IF distancia_mar IS interior AND area_total IS grande THEN preco IS mediano;
+	END_RULEBLOCK
+	
+END_FUNCTION_BLOCK
